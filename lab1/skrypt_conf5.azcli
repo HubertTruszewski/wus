@@ -1,0 +1,76 @@
+#!/bin/bash
+
+set -x
+
+# Tworzenie nowego resource group
+az group create --location norwayeast --name wuslab
+
+# Tworzenie sieci i podsieci
+az network vnet create --name wusnetwork --resource-group wuslab --location norwayeast --address-prefix 10.0.0.0/16 --subnet-name frontendsubnet --subnet-prefix 10.0.0.0/24
+az network vnet subnet create --resource-group wuslab --vnet-name wusnetwork --name backendsubnet --address-prefixes 10.0.1.0/24
+az network vnet subnet create --resource-group wuslab --vnet-name wusnetwork --name databasesubnet --address-prefixes 10.0.2.0/24
+az network public-ip create --name wuspublicip --resource-group wuslab --allocation-method Static
+
+az network nsg create --name wusnetworknsg \
+    --resource-group wuslab \
+    --location norwayeast
+
+az vm create --name database --resource-group wuslab \
+    --image UbuntuLTS --authentication-type ssh \
+    --os-disk-size-gb 32 --private-ip-address 10.0.2.5 \
+    --size Standard_A1_v2 --subnet databasesubnet --vnet-name wusnetwork \
+    --generate-ssh-keys --public-ip-address "" \
+    --nsg wusnetworknsg
+
+az vm create --name databaseslave --resource-group wuslab \
+    --image UbuntuLTS --authentication-type ssh \
+    --os-disk-size-gb 32 --private-ip-address 10.0.2.6 \
+    --size Standard_A1_v2 --subnet databasesubnet --vnet-name wusnetwork \
+    --generate-ssh-keys --public-ip-address "" \
+    --nsg wusnetworknsg
+
+az vm create --name backend --resource-group wuslab \
+    --image UbuntuLTS --authentication-type ssh \
+    --os-disk-size-gb 32 --private-ip-address 10.0.1.5 \
+    --size Standard_B2s --subnet backendsubnet --vnet-name wusnetwork \
+    --generate-ssh-keys --public-ip-address "" \
+    --nsg wusnetworknsg
+
+az vm create --name frontend --resource-group wuslab \
+    --image UbuntuLTS --authentication-type ssh \
+    --os-disk-size-gb 32 --private-ip-address 10.0.0.5 \
+    --size Standard_B2s --subnet frontendsubnet --vnet-name wusnetwork \
+    --generate-ssh-keys --public-ip-address wuspublicip \
+    --nsg wusnetworknsg
+
+az network nsg rule create --name httpport --nsg-name wusnetworknsg --priority 1000 --resource-group wuslab --access Allow \
+    --destination-address-prefixes '*' --destination-port-ranges 80 --protocol Tcp
+
+IP_ADDRESS=$(az vm show -d -g wuslab -n frontend --query publicIps --output tsv)
+
+echo '###################INVOKING SCRIPT#################'
+
+az vm run-command invoke --resource-group wuslab --name database --command-id RunShellScript --scripts @database.sh --parameters "10.0.2.5" "3306"
+
+echo '###################INVOKING SCRIPT#################'
+
+az vm run-command invoke --resource-group wuslab --name databaseslave --command-id RunShellScript --scripts @database_slave.sh --parameters "10.0.2.6" "3306" "10.0.2.5" "3306"
+
+echo '###################INVOKING SCRIPT#################'
+
+az vm run-command invoke --resource-group wuslab --name backend --command-id RunShellScript --scripts @backend_replication.sh --parameters "9966" "10.0.2.5" "3306" "10.0.2.6" "3306" "1"
+
+echo '###################INVOKING SCRIPT#################'
+
+az vm run-command invoke --resource-group wuslab --name backend --command-id RunShellScript --scripts @backend_replication.sh --parameters "9969" "10.0.2.5" "3306" "10.0.2.6" "3306" "0"
+
+echo '###################INVOKING SCRIPT#################'
+
+az vm run-command invoke --resource-group wuslab --name backend --command-id RunShellScript --scripts @loadbalancer.sh --parameters "9970" "9966" "9969"
+
+echo '###################INVOKING SCRIPT#################'
+
+az vm run-command invoke --resource-group wuslab --name frontend --command-id RunShellScript --scripts @frontend.sh --parameters "10.0.1.5" "9970" "${IP_ADDRESS}" "80"
+
+echo '######################IP ADDRESS###################'
+echo "${IP_ADDRESS}"
