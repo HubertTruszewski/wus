@@ -1,0 +1,27 @@
+---
+- hosts:
+    - all
+  pre_tasks:
+    - name: execute install docker script
+      ansible.builtin.script:
+        cmd: ./install_docker.sh
+      poll: 20
+
+    - name: create docker network
+      community.docker.docker_network:
+        name: wusnetwork
+
+- hosts:
+    - all
+  roles:
+    - database_primary
+
+- hosts:
+    - all
+  roles:
+    - backend
+
+- hosts:
+    - all
+  roles:
+    - frontend

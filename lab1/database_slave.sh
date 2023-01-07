@@ -24,7 +24,7 @@ sudo sed -i "s/127.0.0.1/$SERVER_IP/" /etc/mysql/mysql.conf.d/mysqld.cnf
 echo "port = ${SERVER_PORT}" >>/etc/mysql/mysql.conf.d/mysqld.cnf
 # Tworzenie bazy danych i użytkownika
 sudo mysql -e "CREATE DATABASE petclinic"
-sudo mysql -e "CREATE USER 'pc'@'%' IDENTIFIED BY 'petclinic';"
+sudo mysql -e "CREATE USER 'pc'@'%' IDENTIFIED WITH mysql_native_password BY 'petclinic';"
 sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'pc'@'%' WITH GRANT OPTION"
 # Restart aby uruchomić serwer z ustawionymi parametrami
 sudo service mysql restart

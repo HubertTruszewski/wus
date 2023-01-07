@@ -1,0 +1,9 @@
+all:
+  hosts:
+    wus_primary:
+      ansible_host: HOST
+      ansible_user: USER
+  children:
+    wus:
+      hosts:
+        wus_primary:

@@ -1,0 +1,44 @@
+---
+- name: copy file
+  ansible.builtin.copy:
+    src: files/
+    dest: files/frontend/
+    mode: 0644
+
+- name: clone frontend repository
+  ansible.builtin.git:
+    repo: https://github.com/spring-petclinic/spring-petclinic-angular.git
+    dest: spring-petclinic-angular
+    version: 04d6beb
+
+- name: set application address
+  ansible.builtin.replace:
+    path: spring-petclinic-angular/src/environments/environment.ts
+    regexp: "localhost:9966"
+    replace: "{{ ansible_host }}:{{ frontend_port }}"
+
+- name: set backend address
+  ansible.builtin.replace:
+    path: files/frontend/default.conf
+    regexp: "BACKENDHOST:BACKENDPORT"
+    replace: "{{ backend_host }}:{{ backend_port }}"
+
+- name: build frontend image
+  community.docker.docker_image:
+    source: build
+    name: frontend
+    build:
+      path: spring-petclinic-angular
+
+- name: create frontend container
+  community.docker.docker_container:
+    name: frontend
+    network_mode: wusnetwork
+    container_default_behavior: no_defaults
+    ports:
+      - "{{ frontend_port }}:80"
+    image: frontend
+    mounts:
+      - target: /etc/nginx/conf.d/default.conf
+        source: /home/{{ ansible_user }}/files/frontend/default.conf
+        type: bind

@@ -1,0 +1,35 @@
+---
+- name: copy file
+  ansible.builtin.copy:
+    src: files/
+    dest: files/loadbalancer/
+    mode: 0644
+
+- name: set backend primary port
+  ansible.builtin.replace:
+    path: files/loadbalancer/default.conf
+    regexp: "BACKENDPRIMARYPORT"
+    replace: "{{ backend_primary_port | int }}"
+
+- name: set backend secondary port
+  ansible.builtin.replace:
+    path: files/loadbalancer/default.conf
+    regexp: "BACKENDSECONDARYPORT"
+    replace: "{{ backend_secondary_port | int }}"
+
+- name: set loadbalancer port
+  ansible.builtin.replace:
+    path: files/loadbalancer/default.conf
+    regexp: "LOADBALANCERPORT"
+    replace: "{{ load_balancer_port | int }}"
+
+- name: create loadbalancer container
+  community.docker.docker_container:
+    name: loadbalancer
+    network_mode: wusnetwork
+    container_default_behavior: no_defaults
+    image: nginx
+    mounts:
+      - target: /etc/nginx/conf.d/default.conf
+        source: /home/hubert/files/loadbalancer/default.conf
+        type: bind

@@ -1,0 +1,57 @@
+---
+- name: install jdk8
+  ansible.builtin.apt:
+    update_cache: true
+    name:
+      - openjdk-8-jdk
+  become: true
+
+- name: clone petclinic rest repository
+  ansible.builtin.git:
+    repo: https://github.com/spring-petclinic/spring-petclinic-rest.git
+    dest: spring-petclinic-rest
+    version: cd58b56
+
+- name: copy files
+  ansible.builtin.copy:
+    src: files/
+    dest: files/backend_replication/
+    mode: 0644
+
+- name: copy application.properties file
+  ansible.builtin.copy:
+    dest: /home/{{ ansible_user }}/spring-petclinic-rest/src/main/resources/application.properties
+    src: /home/{{ ansible_user }}/files/backend_replication/application.properties
+    remote_src: true
+    mode: 0644
+
+- name: copy application-mysql.properties file
+  ansible.builtin.copy:
+    dest: /home/{{ ansible_user }}/spring-petclinic-rest/src/main/resources/application-mysql.properties
+    src: /home/{{ ansible_user }}/files/backend_replication/application-mysql.properties
+    remote_src: true
+    mode: 0644
+
+- name: build backend jar
+  when: ansible_os_family == "Debian"
+  ansible.builtin.command:
+    chdir: spring-petclinic-rest
+    cmd: ./mvnw package
+
+- name: create backend container
+  community.docker.docker_container:
+    name: backend-primary
+    image: openjdk:8-jdk-alpine
+    working_dir: /app
+    network_mode: wusnetwork
+    container_default_behavior: no_defaults
+    mounts:
+      - target: /app/app.jar
+        source: /home/{{ ansible_user }}/spring-petclinic-rest/target/spring-petclinic-rest-2.6.2.jar
+        type: bind
+    env:
+      BACKENDPORT: "{{ backend_primary_port | int }}"
+      DATABASEPRIMARYPORT: "{{ database_primary_port | int }}"
+      DATABASESECONDARYPORT: "{{ database_secondary_port | int }}"
+    entrypoint:
+      - java -jar app.jar

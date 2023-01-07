@@ -1,0 +1,18 @@
+---
+- name: copy database primary files
+  ansible.builtin.copy:
+    src: files/
+    dest: files/database_primary/
+    mode: 0644
+
+- name: create docker database primary container
+  community.docker.docker_container:
+    name: database-primary
+    image: mysql/mysql-server:8.0
+    network_mode: wusnetwork
+    container_default_behavior: no_defaults
+    command: --port={{ database_primary_port }} --server-id=1 --log-bin='mysql-bin-1.log'
+    mounts:
+      - target: /docker-entrypoint-initdb.d/setupDB_primary.sql
+        source: /home/{{ ansible_user }}/files/database_primary/setupDB_primary.sql
+        type: bind

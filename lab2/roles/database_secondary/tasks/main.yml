@@ -1,0 +1,24 @@
+---
+- name: copy database primary files
+  ansible.builtin.copy:
+    src: files/
+    dest: files/database_secondary/
+    mode: 0644
+
+- name: set database primary port
+  ansible.builtin.replace:
+    path: files/database_secondary/setupDB_secondary.sql
+    regexp: "DATABASEPRIMARYPORT"
+    replace: "{{ database_primary_port | int }}"
+
+- name: create docker database secondary container
+  community.docker.docker_container:
+    name: database-secondary
+    image: mysql/mysql-server:8.0
+    network_mode: wusnetwork
+    container_default_behavior: no_defaults
+    command: --port={{ database_secondary_port | int }} --server-id=2 --read-only=1
+    mounts:
+      - target: /docker-entrypoint-initdb.d/setupDB_secondary.sql
+        source: /home/{{ ansible_user }}/files/database_secondary/setupDB_secondary.sql
+        type: bind
