@@ -1,5 +1,5 @@
 ---
-- name: copy database primary files
+- name: copy database secondary files
   ansible.builtin.copy:
     src: files/
     dest: files/database_secondary/
