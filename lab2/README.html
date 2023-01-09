@@ -122,9 +122,9 @@
 </ul>
 <p><em>Wykonanie całego skryptu - tj. utworzenie maszyny i uruchomienie poszczególnych playbooków dla konfiguracji nr 5 zajmuje ok. 15 minut.</em></p>
 <p>Po zakończeniu działania skryptu otrzymujemy następujący efekt:</p>
-<p><img src="file:////home/hubert/studia/wus/lab2/img/script_result_1.png" alt=""></p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/script_result.png" alt=""></p>
 <p>Po zalogowaniu na maszynę i wydaniu polecenia <code>docker ps</code> powinniśmy widzieć uruchomionych 6 kontenerów:</p>
-<p><img src="file:////home/hubert/studia/wus/lab2/img/docker_1.img" alt=""></p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/docker_1.png" alt=""></p>
 <p>Po wejściu na adres <code>20.100.203.227:8087</code> widzimy frontend angular dla petclinc:</p>
 <p><img src="file:////home/hubert/studia/wus/lab2/img/petclinic_1.png" alt=""></p>
 <p>Możemy np. wyświetlić listę zwierząt:</p>
@@ -156,9 +156,7 @@
 <p>Po wznowieniu pracy obu kontenerów z backendem (<code>docker start backend-primary backend-secondary</code>) zapytanie do api działa.</p>
 <p><img src="file:////home/hubert/studia/wus/lab2/img/api_4.png" alt=""></p>
 <h3 id="wnioski">Wnioski</h3>
-<p>W wyniku tego ćwiczenia zapoznaliśmy się ze środowiskiem Azure, jego możlwościami, sposobami konfiguracji oraz obsługą AZ CLI.
-Nabyte umiejętności to:</p>
-<p>W wyniku tego ćwiczenia dalej rozwijaliśmy umiejętności związane z AZ CLI. Nowonabytą umiejętnością jest obsługa Ansible:</p>
+<p>W wyniku tego ćwiczenia dalej rozwijaliśmy umiejętności związane z AZ CLI. Nowonabytą umiejętnością jest obsługa Ansible. Podczas wykonywania zadań dowiedzieliśmy się o sposobie wykonania poniższych operacji:</p>
 <ul>
 <li>tworzenie playbooków</li>
 <li>tworzenie ról</li>
@@ -178,7 +176,7 @@ Nabyte umiejętności to:</p>
 <li>konfiguracja loadbalancera przy użyciu serwera Nginx</li>
 <li>konfiguracja reverse proxy przy użyciu Nginx</li>
 </ul>
-<p>Wykonanie tego zadania wymagało poznania nowej technologii jaką jest Ansible, jej możliwości oraz dostępnych rodzajów zadań. Ansible, jako narzędzie IaaC pozwala na łatwiejsze śledzenie zmian w konfiguracji oraz polepszenie współpracy w zespołach administratorów.</p>
+<p>Wykonanie tego zadania wymagało poznania nowej technologii jaką jest Ansible, jej możliwości oraz dostępnych rodzajów zadań. Ansible, jako narzędzie IaaC pozwala na łatwiejsze śledzenie zmian w konfiguracji oraz polepszenie współpracy w zespołach administratorów. Niewątpliwą zaletą jest również możlwiość przechowywania konfiguracji np. w repozytorium gita. Dzięki temu otrzymujemy możliwość śledzenia zmian konfiguracji oraz uproszczone szukanie opisu powodu czy autora zmian w przypadku problemów z nową konfiguracją.</p>
 
         
         

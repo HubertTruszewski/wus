@@ -48,11 +48,11 @@ _Wykonanie całego skryptu - tj. utworzenie maszyny i uruchomienie poszczególny
 
 Po zakończeniu działania skryptu otrzymujemy następujący efekt:
 
-![](img/script_result_1.png)
+![](img/script_result.png)
 
 Po zalogowaniu na maszynę i wydaniu polecenia `docker ps` powinniśmy widzieć uruchomionych 6 kontenerów:
 
-![](img/docker_1.img)
+![](img/docker_1.png)
 
 Po wejściu na adres `20.100.203.227:8087` widzimy frontend angular dla petclinc:
 
@@ -111,10 +111,7 @@ Po wznowieniu pracy obu kontenerów z backendem (`docker start backend-primary b
 
 ### Wnioski
 
-W wyniku tego ćwiczenia zapoznaliśmy się ze środowiskiem Azure, jego możlwościami, sposobami konfiguracji oraz obsługą AZ CLI.
-Nabyte umiejętności to:
-
-W wyniku tego ćwiczenia dalej rozwijaliśmy umiejętności związane z AZ CLI. Nowonabytą umiejętnością jest obsługa Ansible:
+W wyniku tego ćwiczenia dalej rozwijaliśmy umiejętności związane z AZ CLI. Nowonabytą umiejętnością jest obsługa Ansible. Podczas wykonywania zadań dowiedzieliśmy się o sposobie wykonania poniższych operacji:
 
 - tworzenie playbooków
 - tworzenie ról
@@ -131,4 +128,4 @@ Pozostałe umiejętności niezwiązane bezpośrednio z Azure i Ansible to:
 - konfiguracja loadbalancera przy użyciu serwera Nginx
 - konfiguracja reverse proxy przy użyciu Nginx
 
-Wykonanie tego zadania wymagało poznania nowej technologii jaką jest Ansible, jej możliwości oraz dostępnych rodzajów zadań. Ansible, jako narzędzie IaaC pozwala na łatwiejsze śledzenie zmian w konfiguracji oraz polepszenie współpracy w zespołach administratorów.
+Wykonanie tego zadania wymagało poznania nowej technologii jaką jest Ansible, jej możliwości oraz dostępnych rodzajów zadań. Ansible, jako narzędzie IaaC pozwala na łatwiejsze śledzenie zmian w konfiguracji oraz polepszenie współpracy w zespołach administratorów. Niewątpliwą zaletą jest również możlwiość przechowywania konfiguracji np. w repozytorium gita. Dzięki temu otrzymujemy możliwość śledzenia zmian konfiguracji oraz uproszczone szukanie opisu powodu czy autora zmian w przypadku problemów z nową konfiguracją.
