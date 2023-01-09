@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>WUS 22Z - Laboratorium 2 - Ansible</title>
+        <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+/* From extension ms-toolsai.jupyter */
+/* These classnames are inherited from bootstrap, but are present in most notebook renderers */
+
+.alert {
+    width: auto;
+    padding: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+.alert > *:last-child {
+    margin-bottom: 0;
+}
+#preview > .alert:last-child {
+    /* Prevent this being set to zero by the default notebook stylesheet */
+    padding-bottom: 1em;
+}
+
+.alert-success {
+    /* Note there is no suitable color available, so we just copy "info" */
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-info {
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-warning {
+    background-color: var(--theme-warning-background);
+    color: var(--theme-warning-foreground);
+}
+.alert-danger {
+    background-color: var(--theme-error-background);
+    color: var(--theme-error-foreground);
+}
+
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="wus-22z---laboratorium-2---ansible">WUS 22Z - Laboratorium 2 - Ansible</h1>
+<p>Skład zespołu:</p>
+<ul>
+<li>Błażej Gospodarek</li>
+<li>Jakub Smela</li>
+<li>Grzegorz Socha</li>
+<li>Hubert Truszewski</li>
+</ul>
+<h3 id="uruchomienie-skryptu">Uruchomienie skryptu</h3>
+<pre><code>./skrypt.sh CONFIGURATION_VERSION DATABASE_PORT BACKEND_PORT FRONTEND_PORT
+</code></pre>
+<p>Skrypt potrzebuje do działania 4 argumentów przekazywanych przy wywołaniu w konsoli:</p>
+<ul>
+<li>CONFIGURATION_VERSION - wersja konfiguracji</li>
+<li>DATABASE_PORT - port, na którym będzie działać serwer MySQL</li>
+<li>BACKEND_PORT - port, na którym będzie działać backend</li>
+<li>FRONTEND_PORT - port, na którym będzie działać frontend</li>
+</ul>
+<p>W zależności od konfiguracji skrypt może poprosić o podanie dodatkowych parametrów:</p>
+<ul>
+<li>dla konfiguracji nr 3:
+<ul>
+<li>port na którym będzie działać serwer MySQL w trybie slave</li>
+</ul>
+</li>
+<li>dla konfiguracji nr 5:
+<ul>
+<li>port na którym będzie działać serwer MySQL w trybie slave</li>
+<li>port na którym będzie działać druga instacja backendu</li>
+<li>port na którym będzie działać loadbalancer dla backendu</li>
+</ul>
+</li>
+</ul>
+<p>Na końcu skrypt wypisze w konsoli adres IP pod którym będzie dostępny frontend, zaś port został podany jako argument przy wywołaniu skryptu.</p>
+<p>Skrypt wywołuje odpowiednie playbooki Ansible w zależności od konfiguracji. Zdefinowane są w nich role, które mają się wykonać, zaś zadania dla poszczególnych ról znajdują się w katalogu <code>roles</code>.</p>
+<h3 id="testy---konfiguracja-nr-5">Testy - konfiguracja nr 5</h3>
+<p>Dla zademonstrowania wywołamy skrypt z następującymi parametrami:</p>
+<ul>
+<li>port bazy danych primary - 3355</li>
+<li>port bazy danych secondary - 3388</li>
+<li>port pierwszej instancji backendu - 9898</li>
+<li>port drugiej instancji backendu - 9698</li>
+<li>port loadbalancera - 8480</li>
+<li>port frontnendu - 8087</li>
+</ul>
+<p><em>Wykonanie całego skryptu - tj. utworzenie maszyny i uruchomienie poszczególnych playbooków dla konfiguracji nr 5 zajmuje ok. 15 minut.</em></p>
+<p>Po zakończeniu działania skryptu otrzymujemy następujący efekt:</p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/script_result_1.png" alt=""></p>
+<p>Po zalogowaniu na maszynę i wydaniu polecenia <code>docker ps</code> powinniśmy widzieć uruchomionych 6 kontenerów:</p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/docker_1.img" alt=""></p>
+<p>Po wejściu na adres <code>20.100.203.227:8087</code> widzimy frontend angular dla petclinc:</p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/petclinic_1.png" alt=""></p>
+<p>Możemy np. wyświetlić listę zwierząt:</p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/petclinic_2.png" alt=""></p>
+<p>Dla testów dodamy dwa nowe typy zwierząt. Przed zrobieniem tego sprawdzimy stan informacji w bazie na obu istancjach.</p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/database_primary_1.png" alt=""></p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/database_secondary_1.png" alt=""></p>
+<p>Dodamy dwa nowe typy zwierząt: <code>pig</code> oraz <code>frog</code>. Widok strony po dodaniu:</p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/petclinic_3.png" alt=""></p>
+<p>Zrzut informacji w bazach danych:</p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/database_primary_2.png" alt=""></p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/database_secondary_2.png" alt=""></p>
+<p>Jak widać na powyższych obrazkach replikacja bazy danych działa.</p>
+<ul>
+<li>backend działa na portach 9898 i 9698</li>
+<li>loadbalancer na porcie 8480</li>
+</ul>
+<p>Następnie używając polecenia <code>docker stop backend-primary</code> zatrzymuję działanie jednej instacji backendu.</p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/backend_stop_1.png" alt=""></p>
+<p>Następnie wykonuję zapytanie do api. (Wykorzystuję tutaj tymczasowo stworzony kontener z obrazem Ubuntu)</p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/api_1.png" alt=""></p>
+<p>W logach loadbalancera możemy znaleźć informację, że wykrył że backend-primary nie działa.</p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/load_1.png" alt=""></p>
+<p>Następnie wyłączam drugi działający jeszcze backend.</p>
+<p>W tym przypadku dostaję w odpowiedzi na zapytanie błąd <code>502 Bad Gateway</code>.</p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/api_2.png" alt=""></p>
+<p>A w logach loadbalancera znajduje się informacja o niemożności połączenia do żadnej z instancji backendu:</p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/load_2.png" alt=""></p>
+<p>Po wznowieniu pracy obu kontenerów z backendem (<code>docker start backend-primary backend-secondary</code>) zapytanie do api działa.</p>
+<p><img src="file:////home/hubert/studia/wus/lab2/img/api_4.png" alt=""></p>
+<h3 id="wnioski">Wnioski</h3>
+<p>W wyniku tego ćwiczenia zapoznaliśmy się ze środowiskiem Azure, jego możlwościami, sposobami konfiguracji oraz obsługą AZ CLI.
+Nabyte umiejętności to:</p>
+<p>W wyniku tego ćwiczenia dalej rozwijaliśmy umiejętności związane z AZ CLI. Nowonabytą umiejętnością jest obsługa Ansible:</p>
+<ul>
+<li>tworzenie playbooków</li>
+<li>tworzenie ról</li>
+<li>tworzenie zadań dla ról</li>
+<li>definiowanie własnych zbiorów inventory</li>
+</ul>
+<p>Pozostałe umiejętności niezwiązane bezpośrednio z Azure i Ansible to:</p>
+<ul>
+<li>uruchomienie serwera MySQL w wersjach:
+<ul>
+<li>master</li>
+<li>slave</li>
+</ul>
+</li>
+<li>uruchomienie projektu napisanego przy użciu frameworka Spring</li>
+<li>sposób budowania projektu w Angularze</li>
+<li>konfiguracja loadbalancera przy użyciu serwera Nginx</li>
+<li>konfiguracja reverse proxy przy użyciu Nginx</li>
+</ul>
+<p>Wykonanie tego zadania wymagało poznania nowej technologii jaką jest Ansible, jej możliwości oraz dostępnych rodzajów zadań. Ansible, jako narzędzie IaaC pozwala na łatwiejsze śledzenie zmian w konfiguracji oraz polepszenie współpracy w zespołach administratorów.</p>
+
+        
+        
+    </body>
+    </html>

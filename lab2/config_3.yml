@@ -2,11 +2,12 @@
 - hosts:
     - all
   pre_tasks:
+    # instalacja dockera
     - name: execute install docker script
       ansible.builtin.script:
         cmd: ./install_docker.sh
       poll: 20
-
+      # tworzenie sieci dockerowej dla kontenerów
     - name: create docker network
       community.docker.docker_network:
         name: wusnetwork
